@@ -95,6 +95,14 @@ For **NVIDIA GPU** inside the container, install the [NVIDIA Container Toolkit](
 
 To pin a different UltraSinger image tag, change the `FROM` line in the Dockerfile.
 
+### GitHub Actions → GHCR
+
+On push to **`main`** or **`master`**, or when you push a **`v*`** tag (e.g. `v1.0.0`), the workflow [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml) builds the image and pushes it to **GitHub Container Registry**:
+
+`ghcr.io/<owner>/<repo>:latest` (default branch only), branch name, semver tags, and `sha-<commit>`.
+
+No extra secrets are required: `GITHUB_TOKEN` is used with `packages: write`. After the first run, open the package on GitHub and set **visibility** to public if you want anonymous `docker pull`.
+
 ## API
 
 The SPA uses JSON endpoints under `/api/`, including:
