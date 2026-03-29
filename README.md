@@ -1,3 +1,5 @@
+<img width="787" height="203" alt="image" src="https://github.com/user-attachments/assets/fbbfa1cd-5fc0-4029-95e8-ea8cdacbbd7c" />
+
 # UltraSinger WebUI
 
 A browser-based companion for **[UltraSinger](https://github.com/rakuri255/UltraSinger)**. It does not modify UltraSinger: the WebUI queues work, runs `UltraSinger.py` as a subprocess, handles uploads, optional playlist expansion, post-processing (ffmpeg, YARG naming, workfiles), on-demand ZIP downloads, job history, and cleanup.
