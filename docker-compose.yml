@@ -1,0 +1,32 @@
+# UltraSinger WebUI — built on ghcr.io/rakuri255/ultrasinger (includes UltraSinger + CUDA stack).
+# For GPU jobs, use Docker with NVIDIA Container Toolkit and uncomment the deploy section below.
+
+services:
+  webui:
+    build: .
+    image: ultrasinger-webui:latest
+    container_name: ultrasinger-webui
+    ports:
+      - "8080:8080"
+    environment:
+      PYTHONUNBUFFERED: "1"
+      ULTRASINGER_WEBUI_DATA_DIR: /data
+      ULTRASINGER_PY: /app/UltraSinger/UltraSinger.py
+      PYTHON_EXE: python3.12
+      # Optional:
+      # ULTRASINGER_WEBUI_MAX_CONCURRENT_JOBS: "1"
+      # ULTRASINGER_WEBUI_JOB_RETENTION_HOURS: "24"
+    volumes:
+      - ultrasinger-webui-data:/data
+    restart: unless-stopped
+    # GPU (NVIDIA): requires nvidia-container-toolkit
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+volumes:
+  ultrasinger-webui-data:

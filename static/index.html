@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UltraSinger WebUI</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1 class="brand">
+        <a href="#home" class="brand-link" title="Home">
+          <img src="/static/logo.png" alt="UltraSinger WebUI" class="brand-logo" width="420" height="90" />
+        </a>
+      </h1>
+      <nav>
+        <button type="button" data-view="home">Home</button>
+        <button type="button" data-view="jobs">Jobs / History</button>
+        <button type="button" data-view="downloads">Downloads</button>
+        <button type="button" data-view="settings">Settings</button>
+      </nav>
+    </header>
+    <main>
+      <div id="health-banner" class="health-warn hidden"></div>
+
+      <section id="view-home">
+        <p class="muted home-settings-hint">
+          Whisper, export options (this browser), and server paths — UltraSinger.py, job output folder, upload folder —
+          are under <a href="#settings">Settings</a>.
+        </p>
+
+        <div class="panel panel-inputs">
+          <h2>Add jobs</h2>
+
+          <h3 class="panel-subh">URL</h3>
+          <form id="form-url">
+            <div class="url-mode-row" role="radiogroup" aria-label="URL mode">
+              <label class="check url-mode">
+                <input type="radio" name="url-mode" value="single" checked />
+                Single video or audio
+              </label>
+              <label class="check url-mode">
+                <input type="radio" name="url-mode" value="playlist" />
+                Playlist
+              </label>
+            </div>
+            <label for="url-input">Link</label>
+            <input
+              id="url-input"
+              type="url"
+              placeholder="https://www.youtube.com/watch?v=… or playlist?list=…"
+              autocomplete="url"
+            />
+            <p id="url-mode-hint" class="muted" style="font-size: 0.85rem; margin: 0.35rem 0 0.75rem">
+              One job per link.
+            </p>
+            <button class="btn" type="submit" id="url-submit">Queue</button>
+          </form>
+
+          <div class="panel-split" role="presentation"></div>
+
+          <h3 class="panel-subh">File upload</h3>
+          <form id="form-upload">
+            <label for="file-audio">Audio / video file</label>
+            <div class="file-upload-row">
+              <input id="file-audio" type="file" accept=".mp3,.wav,.aac,.ogg,.opus,.flac,.m4a,.webm,.mp4,.mkv,.avi" />
+              <button class="btn" type="submit">Upload &amp; queue</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="view-settings" class="hidden">
+        <div class="panel">
+          <h2>Settings</h2>
+          <p class="muted" style="font-size: 0.9rem; margin-top: 0">
+            UltraSinger path and folders are stored in <code class="mono">data/webui_config.json</code> on the server.
+            Whisper and export options below are stored in this browser.
+          </p>
+
+          <h3 class="panel-subh">UltraSinger</h3>
+          <p class="muted" style="font-size: 0.82rem; margin: 0 0 0.5rem">
+            Full path to <code class="mono">UltraSinger.py</code> on this machine. Saved under
+            <code class="mono">data/webui_config.json</code> unless <code class="mono">ULTRASINGER_PY</code> is set in
+            the environment (then it overrides and this field is read-only). Examples:
+            <code class="mono">/home/you/UltraSinger/UltraSinger.py</code> (Linux) ·
+            <code class="mono">D:\UltraSinger\UltraSinger.py</code> (Windows).
+          </p>
+          <label for="srv-ultrasinger-path">UltraSinger.py path</label>
+          <input
+            type="text"
+            id="srv-ultrasinger-path"
+            class="settings-path-input"
+            placeholder="/home/you/UltraSinger/UltraSinger.py or D:\UltraSinger\UltraSinger.py"
+            spellcheck="false"
+            autocomplete="off"
+          />
+          <p id="srv-ultrasinger-status" class="muted" style="font-size: 0.85rem; margin: 0.35rem 0 0.5rem"></p>
+          <p id="srv-ultrasinger-env-lock" class="health-warn hidden" style="margin: 0 0 0.75rem"></p>
+
+          <h3 class="panel-subh">Folders</h3>
+          <p class="muted" style="font-size: 0.82rem; margin: 0 0 0.5rem">
+            Optional. Leave empty to use defaults under the app data directory (<code class="mono">data/jobs</code> and
+            <code class="mono">data/uploads</code>, or <code class="mono">data\jobs</code> on Windows). Job folders are
+            <code class="mono">job_0001</code>, … inside the output folder. Examples — output:
+            <code class="mono">/var/lib/ultrasinger/jobs</code> · <code class="mono">D:\UltraSinger\jobs</code>; uploads:
+            <code class="mono">/tmp/us-uploads</code> · <code class="mono">C:\Temp\us-uploads</code>.
+          </p>
+          <label for="srv-output-folder">Output folder (job data)</label>
+          <input
+            type="text"
+            id="srv-output-folder"
+            class="settings-path-input"
+            placeholder="/var/lib/ultrasinger/jobs or D:\UltraSinger\jobs"
+            spellcheck="false"
+            autocomplete="off"
+          />
+          <p id="srv-output-folder-resolved" class="muted" style="font-size: 0.78rem; margin: 0.25rem 0 0.65rem"></p>
+          <label for="srv-upload-folder">Upload folder (temporary uploads)</label>
+          <input
+            type="text"
+            id="srv-upload-folder"
+            class="settings-path-input"
+            placeholder="/tmp/us-uploads or C:\Temp\us-uploads"
+            spellcheck="false"
+            autocomplete="off"
+          />
+          <p id="srv-upload-folder-resolved" class="muted" style="font-size: 0.78rem; margin: 0.25rem 0 0.65rem"></p>
+          <p id="srv-folders-warn" class="health-warn hidden" style="margin: 0 0 0.75rem"></p>
+
+          <button type="button" class="btn" id="srv-server-save">Save server settings</button>
+
+          <h3 class="panel-subh">Whisper</h3>
+          <label for="opt-whisper">Compute type</label>
+          <select id="opt-whisper">
+            <option value="int8" selected>int8 (low VRAM / older GPUs)</option>
+            <option value="float16">float16</option>
+            <option value="float32">float32</option>
+          </select>
+          <p class="muted" style="font-size: 0.82rem; margin: 0.4rem 0 0">
+            Passed to UltraSinger as <code class="mono">--whisper_compute_type</code>. Use int8 if you are low on VRAM.
+          </p>
+
+          <h3 class="panel-subh">Output &amp; export</h3>
+          <label for="opt-audio">Output audio format (after UltraSinger)</label>
+          <select id="opt-audio">
+            <option value="original" selected>original</option>
+            <option value="mp3">mp3</option>
+            <option value="wav">wav</option>
+            <option value="ogg">ogg</option>
+            <option value="opus">opus</option>
+            <option value="flac">flac</option>
+            <option value="off">off (no converted audio)</option>
+          </select>
+          <label class="check"><input type="checkbox" id="opt-yarg" /> YARG-compatible output (notes.txt, guitar.*, background.*)</label>
+          <label class="check"><input type="checkbox" id="opt-delwf" /> Delete workfiles after complete (no workfiles in ZIP; stems/MIDI removed)</label>
+        </div>
+      </section>
+
+      <section id="view-jobs" class="hidden">
+        <div class="panel">
+          <h2>Jobs / History</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Status</th>
+                <th>Type</th>
+                <th>Source</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="jobs-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="view-downloads" class="hidden">
+        <div class="panel">
+          <h2>Downloads</h2>
+          <p class="muted" style="font-size: 0.9rem">ZIPs are built when you click download; they are not stored permanently.</p>
+          <p>
+            <button class="btn" type="button" id="btn-dl-all">Download all (completed)</button>
+          </p>
+          <div id="bundle-area" class="hidden" style="margin: 0.75rem 0">
+            <p id="bundle-status"></p>
+            <a class="btn hidden" id="bundle-dl" href="#">Download now</a>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Job</th>
+                <th>Package</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="dl-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div id="modal-backdrop" class="modal-backdrop hidden">
+      <div class="modal">
+        <button type="button" class="btn secondary" id="modal-close" style="float: right">Close</button>
+        <div id="modal-body"></div>
+      </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

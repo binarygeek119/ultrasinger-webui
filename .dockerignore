@@ -1,0 +1,13 @@
+__pycache__
+*.py[cod]
+*$py.class
+.Python
+.git
+.gitignore
+.env
+.env.*
+*.md
+data
+.vscode
+.idea
+*.log
