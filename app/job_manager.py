@@ -22,6 +22,7 @@ from app.models import InputType, JobInput, JobRecord, JobStatus, ProcessingOpti
 from app.playlist import expand_playlist
 from app.postprocess import run_postprocess
 from app.ultrasinger_runner import run_ultrasinger
+from app.youtube_util import normalize_youtube_url_for_single_video
 
 log = logging.getLogger(__name__)
 
@@ -184,7 +185,7 @@ class JobManager:
         self._queue.put(job_id)
 
     def submit_url(self, url: str, options: ProcessingOptions) -> JobRecord:
-        inp = JobInput(type=InputType.url, source=url.strip())
+        inp = JobInput(type=InputType.url, source=normalize_youtube_url_for_single_video(url.strip()))
         rec = self.create_job_record(inp, options)
         self.enqueue(rec.id)
         return rec
@@ -258,7 +259,7 @@ class JobManager:
                 self._fail_job(job_id, "Upload missing from job input folder.")
                 return
         else:
-            input_target = rec.input.source.strip()
+            input_target = normalize_youtube_url_for_single_video(rec.input.source.strip())
 
         code, _tail = run_ultrasinger(
             self._get_settings(),
