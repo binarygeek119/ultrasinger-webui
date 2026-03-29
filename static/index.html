@@ -18,6 +18,7 @@
         <button type="button" data-view="jobs">Jobs / History</button>
         <button type="button" data-view="downloads">Downloads</button>
         <button type="button" data-view="settings">Settings</button>
+        <button type="button" data-view="about">About</button>
       </nav>
     </header>
     <main>
@@ -74,14 +75,15 @@
         <div class="panel">
           <h2>Settings</h2>
           <p class="muted" style="font-size: 0.9rem; margin-top: 0">
-            UltraSinger path and folders are stored in <code class="mono">data/webui_config.json</code> on the server.
+            UltraSinger path and folders are saved to a JSON file on the server (path shown below after load).
             Whisper and export options below are stored in this browser.
           </p>
+          <p id="srv-webui-config-path" class="muted mono" style="font-size: 0.82rem; margin: 0.35rem 0 0.75rem; word-break: break-all"></p>
 
           <h3 class="panel-subh">UltraSinger</h3>
           <p class="muted" style="font-size: 0.82rem; margin: 0 0 0.5rem">
-            Full path to <code class="mono">UltraSinger.py</code> on this machine. Saved under
-            <code class="mono">data/webui_config.json</code> unless <code class="mono">ULTRASINGER_PY</code> is set in
+            Full path to <code class="mono">UltraSinger.py</code> on this machine. Saved in the server settings file
+            unless <code class="mono">ULTRASINGER_PY</code> is set in
             the environment (then it overrides and this field is read-only). Examples:
             <code class="mono">/home/you/UltraSinger/UltraSinger.py</code> (Linux) ·
             <code class="mono">D:\UltraSinger\UltraSinger.py</code> (Windows).
@@ -198,7 +200,162 @@
           </table>
         </div>
       </section>
+
+      <section id="view-about" class="hidden">
+        <div class="panel">
+          <h2>About</h2>
+          <p class="muted" style="font-size: 0.95rem; margin-top: 0">
+            <strong>UltraSinger WebUI</strong> is a browser companion for
+            <a href="https://github.com/rakuri255/UltraSinger" rel="noopener noreferrer" target="_blank">UltraSinger</a>.
+            It does not replace it: this app queues work, runs <code class="mono">UltraSinger.py</code> as a subprocess, and
+            adds uploads, playlists, post-processing, ZIP downloads, and job cleanup around the upstream tool.
+          </p>
+
+          <h3 class="panel-subh">UltraSinger (upstream)</h3>
+          <div class="about-ultrasinger-brand">
+            <a
+              href="https://github.com/rakuri255/UltraSinger"
+              rel="noopener noreferrer"
+              target="_blank"
+              class="about-ultrasinger-logo-link"
+              title="UltraSinger on GitHub"
+            >
+              <img
+                src="/static/ultrasinger-logo.png"
+                alt="UltraSinger logo"
+                class="about-ultrasinger-logo"
+                width="360"
+                decoding="async"
+                loading="lazy"
+              />
+            </a>
+          </div>
+          <div class="about-powered-by-banner">
+            <a
+              href="https://github.com/rakuri255/UltraSinger"
+              rel="noopener noreferrer"
+              target="_blank"
+              class="about-powered-by-link"
+            >
+              <span class="about-powered-by-label">Powered by</span>
+              <span class="about-powered-by-name">UltraSinger</span>
+            </a>
+          </div>
+          <p class="muted" style="font-size: 0.9rem">
+            <a href="https://github.com/rakuri255/UltraSinger" rel="noopener noreferrer" target="_blank">UltraSinger</a>
+            is an open-source, AI-based pipeline that builds UltraStar karaoke text, MIDI, and note data from audio or
+            video. It uses transcription (including Whisper), pitch detection, optional vocal separation, and related
+            steps. Install it separately, then point this WebUI at <code class="mono">UltraSinger.py</code> under
+            <a href="#settings">Settings</a>.
+          </p>
+          <p class="muted about-ultrasinger-repo" style="font-size: 0.88rem; margin-top: 0.35rem">
+            Official project:
+            <a href="https://github.com/rakuri255/UltraSinger" rel="noopener noreferrer" target="_blank"
+              >github.com/rakuri255/UltraSinger</a>
+            — documentation, CLI options, GPU setup, and support channels are maintained there.
+          </p>
+
+          <h3 class="panel-subh">Author</h3>
+          <div class="about-author">
+            <a
+              href="https://github.com/binarygeek119"
+              class="about-author-avatar-link"
+              rel="noopener noreferrer"
+              target="_blank"
+              title="binarygeek119 on GitHub"
+            >
+              <img
+                src="/static/author.png"
+                width="72"
+                height="72"
+                alt="binarygeek119"
+                class="about-author-logo"
+                decoding="async"
+              />
+            </a>
+            <div class="about-author-text muted">
+              <p class="about-author-name">
+                <a href="https://github.com/binarygeek119" rel="noopener noreferrer" target="_blank">binarygeek119</a>
+              </p>
+              <p class="about-author-repo">
+                Source:
+                <a href="https://github.com/binarygeek119/ultrasinger-webui" rel="noopener noreferrer" target="_blank"
+                  >ultrasinger-webui on GitHub</a>
+              </p>
+            </div>
+          </div>
+
+          <h3 class="panel-subh">What you need</h3>
+          <ul class="about-list muted">
+            <li>
+              <a href="https://github.com/rakuri255/UltraSinger" rel="noopener noreferrer" target="_blank">UltraSinger</a>
+              installed on the same machine as this app (path under <a href="#settings">Settings</a>)
+            </li>
+            <li>
+              <a href="https://ffmpeg.org/" rel="noopener noreferrer" target="_blank">ffmpeg</a> on <code class="mono">PATH</code>
+              for audio conversion
+            </li>
+            <li>
+              <a href="https://github.com/yt-dlp/yt-dlp" rel="noopener noreferrer" target="_blank">yt-dlp</a> on
+              <code class="mono">PATH</code> for playlist expansion (optional)
+            </li>
+          </ul>
+
+          <h3 class="panel-subh">Configuration</h3>
+          <p class="muted" style="font-size: 0.9rem">
+            Server paths and folders are stored in <code class="mono">webui_config.json</code> under your configured data
+            directory (see <a href="#settings">Settings</a>). Whisper and export defaults for new jobs are stored in this
+            browser.
+          </p>
+
+          <h3 class="panel-subh">AI-generated code</h3>
+          <p class="muted" style="font-size: 0.88rem">
+            This WebUI repository was written entirely with AI coding assistants; there was no traditional hand-authored
+            baseline. Treat it as a starting point: read the code, run your own tests, and verify behavior before relying
+            on it for anything important.
+          </p>
+
+          <h3 class="panel-subh">Disclaimer</h3>
+          <p class="muted" style="font-size: 0.88rem; margin-bottom: 0">
+            Use only with content you have the right to process. Respect site terms, copyright, and local law. This tool
+            is provided as-is; review and test before relying on it.
+          </p>
+        </div>
+      </section>
     </main>
+
+    <div
+      id="welcome-backdrop"
+      class="welcome-backdrop hidden"
+      aria-modal="true"
+      role="dialog"
+      aria-labelledby="welcome-title"
+    >
+      <div class="welcome-dialog" id="welcome-panel-phase1">
+        <h3 id="welcome-title">Read About first</h3>
+        <p class="muted">
+          Before you change server paths or add jobs, read the
+          <a href="#about" id="welcome-link-about">About</a> page (requirements, disclaimers, and UltraSinger info). Then
+          open <strong>Settings</strong> to configure <code class="mono">UltraSinger.py</code> and folders.
+        </p>
+        <p>
+          <button type="button" class="btn" id="welcome-open-about">Open About page</button>
+        </p>
+        <p class="muted" style="font-size: 0.82rem; margin-bottom: 0">
+          You cannot close this notice until you have opened the About page.
+        </p>
+      </div>
+      <div class="welcome-dialog welcome-dialog-phase2 hidden" id="welcome-panel-phase2">
+        <p class="muted" style="margin-top: 0">
+          When you are finished reading, go to <strong>Settings</strong> to set paths. Use <strong>Continue</strong> when you
+          are ready to use the rest of the app.
+        </p>
+        <div class="welcome-phase2-actions">
+          <button type="button" class="btn secondary" id="welcome-open-settings">Open Settings</button>
+          <button type="button" class="btn" id="welcome-continue">Continue to app</button>
+        </div>
+      </div>
+    </div>
 
     <div id="modal-backdrop" class="modal-backdrop hidden">
       <div class="modal">
@@ -206,6 +363,19 @@
         <div id="modal-body"></div>
       </div>
     </div>
+
+    <a
+      class="powered-by-float"
+      href="https://github.com/rakuri255/UltraSinger"
+      rel="noopener noreferrer"
+      target="_blank"
+      title="UltraSinger on GitHub"
+    >
+      <span class="powered-by-float-inner">
+        <span class="powered-by-float-label">Powered by</span>
+        <span class="powered-by-float-name">UltraSinger</span>
+      </span>
+    </a>
 
     <script src="/static/app.js"></script>
   </body>

@@ -104,6 +104,7 @@ def merge_webui_config(data_dir: Path, updates: dict[str, str | None]) -> None:
 def server_settings_payload() -> dict[str, Any]:
     base = Settings()
     data_dir = base.resolved_data_dir()
+    cfg_path = webui_config_path(data_dir)
     wc = load_webui_config(data_dir)
     file_raw = (wc.get("ultrasinger_py") or "").strip()
     env_raw = os.environ.get("ULTRASINGER_PY", "").strip()
@@ -120,6 +121,8 @@ def server_settings_payload() -> dict[str, Any]:
         "ultrasinger_py_input": env_raw if env_set else file_raw,
         "ultrasinger_py_locked_by_env": env_set,
         "data_dir": str(data_dir),
+        "webui_config_file": str(cfg_path.resolve()),
+        "webui_config_exists": cfg_path.is_file(),
         "output_folder_input": of_in,
         "upload_folder_input": uf_in,
         "output_folder_resolved": str(paths.jobs_root),

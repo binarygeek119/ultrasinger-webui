@@ -6,9 +6,12 @@ const views = {
   jobs: $("#view-jobs"),
   downloads: $("#view-downloads"),
   settings: $("#view-settings"),
+  about: $("#view-about"),
 };
 
 const OPTIONS_STORAGE_KEY = "ultrasinger_webui_processing_v1";
+const WELCOME_DONE_KEY = "ultrasinger_webui_onboarding_done";
+const WELCOME_ABOUT_SESSION_KEY = "ultrasinger_webui_onboarding_about_session";
 
 function loadProcessingOptions() {
   try {
@@ -112,10 +115,41 @@ async function loadServerSettings() {
           "One or more folders are missing or not writable. The server will try to create them when you save or run a job.";
       }
     }
+
+    const cfgPathEl = $("#srv-webui-config-path");
+    if (cfgPathEl && d.webui_config_file) {
+      cfgPathEl.textContent = d.webui_config_exists
+        ? `Settings file: ${d.webui_config_file}`
+        : `Settings file (created on save): ${d.webui_config_file}`;
+    }
   } catch (e) {
     statusEl.textContent = e.message;
     statusEl.className = "settings-path-bad";
   }
+}
+
+function welcomeAdvanceToPhase2() {
+  const backdrop = $("#welcome-backdrop");
+  const p1 = $("#welcome-panel-phase1");
+  const p2 = $("#welcome-panel-phase2");
+  if (!backdrop || !p1 || !p2) return;
+  if (!p2.classList.contains("hidden")) return;
+  try {
+    sessionStorage.setItem(WELCOME_ABOUT_SESSION_KEY, "1");
+  } catch {
+    /* ignore */
+  }
+  p1.classList.add("hidden");
+  p2.classList.remove("hidden");
+  backdrop.classList.add("welcome-bar-mode");
+}
+
+function welcomeOnboardingAfterNav(name) {
+  if (localStorage.getItem(WELCOME_DONE_KEY)) return;
+  const backdrop = $("#welcome-backdrop");
+  if (!backdrop || backdrop.classList.contains("hidden")) return;
+  if (name !== "about") return;
+  welcomeAdvanceToPhase2();
 }
 
 function showView(name) {
@@ -130,6 +164,75 @@ function showView(name) {
   if (name === "downloads") loadDownloads();
   if (name === "settings") loadServerSettings();
   history.replaceState(null, "", `#${name}`);
+  welcomeOnboardingAfterNav(name);
+}
+
+function initWelcomeOnboarding() {
+  if (localStorage.getItem(WELCOME_DONE_KEY)) return;
+  const backdrop = $("#welcome-backdrop");
+  const openAbout = $("#welcome-open-about");
+  const linkAbout = $("#welcome-link-about");
+  const cont = $("#welcome-continue");
+  const openSettings = $("#welcome-open-settings");
+  if (!backdrop || !openAbout || !cont) return;
+
+  const p1 = $("#welcome-panel-phase1");
+  const p2 = $("#welcome-panel-phase2");
+  p1?.classList.remove("hidden");
+  p2?.classList.add("hidden");
+  backdrop.classList.remove("welcome-bar-mode");
+
+  const hash = (location.hash || "#home").slice(1);
+  let sawAbout = false;
+  try {
+    sawAbout = sessionStorage.getItem(WELCOME_ABOUT_SESSION_KEY) === "1";
+  } catch {
+    /* ignore */
+  }
+
+  backdrop.classList.remove("hidden");
+
+  if (hash === "about" || sawAbout) {
+    welcomeAdvanceToPhase2();
+  }
+
+  openAbout.addEventListener("click", () => showView("about"));
+  linkAbout?.addEventListener("click", (e) => {
+    e.preventDefault();
+    showView("about");
+  });
+  openSettings?.addEventListener("click", () => showView("settings"));
+  cont.addEventListener("click", () => {
+    try {
+      localStorage.setItem(WELCOME_DONE_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+    backdrop.classList.add("hidden");
+    backdrop.classList.remove("welcome-bar-mode");
+    $("#welcome-panel-phase1")?.classList.remove("hidden");
+    $("#welcome-panel-phase2")?.classList.add("hidden");
+  });
+
+  backdrop.addEventListener("click", (e) => {
+    if (e.target !== backdrop) return;
+    if (backdrop.classList.contains("welcome-bar-mode")) return;
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  document.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.key !== "Escape") return;
+      if (localStorage.getItem(WELCOME_DONE_KEY)) return;
+      const b = $("#welcome-backdrop");
+      if (!b || b.classList.contains("hidden")) return;
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    true,
+  );
 }
 
 function toast(msg) {
@@ -406,12 +509,16 @@ $("#srv-server-save")?.addEventListener("click", async () => {
   const outputFolder = $("#srv-output-folder")?.value?.trim() || null;
   const uploadFolder = $("#srv-upload-folder")?.value?.trim() || null;
   try {
-    await api("PUT", "/api/settings", {
+    const d = await api("PUT", "/api/settings", {
       ultrasinger_py: ultra,
       output_folder: outputFolder,
       upload_folder: uploadFolder,
     });
-    toast("Server settings saved.");
+    toast(
+      d.webui_config_exists
+        ? `Server settings saved to ${d.webui_config_file}`
+        : "Server settings saved (no file — all paths cleared; defaults apply).",
+    );
     await loadServerSettings();
     checkHealth();
   } catch (e) {
@@ -433,5 +540,6 @@ bindProcessingOptionsPersistence();
 
 const initial = (location.hash || "#home").slice(1);
 showView(views[initial] ? initial : "home");
+initWelcomeOnboarding();
 checkHealth();
 startJobsPoll();
