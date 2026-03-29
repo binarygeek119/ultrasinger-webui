@@ -42,7 +42,7 @@ def run_ultrasinger(
     whisper_compute_type: str,
     log_path: Path,
 ) -> tuple[int, str]:
-    cmd = build_ultrasinger_command(settings, input_target, work_dir, whisper_compute_type, log_path)
+    cmd = build_ultrasinger_command(settings, input_target, work_dir, whisper_compute_type)
     log_path.parent.mkdir(parents=True, exist_ok=True)
     with log_path.open("w", encoding="utf-8") as lf:
         lf.write(f"$ {' '.join(cmd)}\n\n")
